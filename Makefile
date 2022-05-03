@@ -1,7 +1,7 @@
 run:
 	python ./src/main.py
 
-test:
+test: ./src/scheduler.py ./src/test_scheduler.py
 	python -m pytest
 
 requirements:

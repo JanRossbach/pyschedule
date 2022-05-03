@@ -1,0 +1,6 @@
+// The conflict Graph
+digraph conflict {
+	A
+	B
+	A -> B
+}
