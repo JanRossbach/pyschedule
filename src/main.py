@@ -1,5 +1,5 @@
 import PySimpleGUIQt as sg
-from scheduler import Scheduler
+from scheduler import Schedule
 
 sg.theme('Dark Blue 3')   # Set the GUI Theme
 
@@ -39,26 +39,30 @@ def main():
             break # Break out of the Loop and close the window
         if event == 'Start':
             inputstr = values[0] # Read the input schedule
-            scheduler = Scheduler(inputstr) # Create the Scheduler
-            scheduler.draw_conflict_graph("../resources") # Use it to draw the Conflict Graph to a file conflict.gv.png in resource directory
+            schedule = Schedule(inputstr) # Create the Scheduler
+            schedule.draw_conflict_graph("../resources") # Use it to draw the Conflict Graph to a file conflict.gv.png in resource directory
 
             # Create the Output with the Scheduler in the required Format using f Strings
-            lockstatement = "Eingabe mit Locks" if scheduler.had_locks else "Eingabe ohne Locks"
-            viewstatement = "s ist " + ("" if scheduler.view_serial() else "nicht ") + "sichtserialisierbar"
-            conflictstatement = "s ist " + ("" if scheduler.view_serial() else "nicht ") + "konfliktserialisierbar"
+            lockstatement = ""
+            if "l" in inputstr:
+                lockstatement = "Eingabe mit Locks, entsprechent " + schedule.conform()
+            else:
+                lockstatement = ""
+            viewstatement = "s ist " + ("" if schedule.is_view_serial() else "nicht ") + "sichtserialisierbar"
+            conflictstatement = "s ist " + ("" if schedule.is_conflict_serial() else "nicht ") + "konfliktserialisierbar"
             outputstr = f"""
             {lockstatement}
             {viewstatement}
             {conflictstatement}
             CS2PL:
-            {scheduler.CS2PL()}
+            {schedule.CS2PL()}
             S2PL:
-            {scheduler.S2PL()}
+            {schedule.S2PL()}
             C2PL:
-            {scheduler.C2PL()}
+            {schedule.C2PL()}
 
             Äquivalenter Serieller Schedule:
-            {scheduler.serial()}
+            {schedule.serial()}
             """
 
             # Update the Window to reflect show the Output
