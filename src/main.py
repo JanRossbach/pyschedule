@@ -47,13 +47,14 @@ def main():
             if "l" in inputstr:
                 lockstatement = "Eingabe mit Locks, entsprechent " + schedule.conform()
             else:
-                lockstatement = ""
+                lockstatement = "Eingabe ohne Locks"
             viewstatement = "s ist " + ("" if schedule.is_view_serial() else "nicht ") + "sichtserialisierbar"
             conflictstatement = "s ist " + ("" if schedule.is_conflict_serial() else "nicht ") + "konfliktserialisierbar"
             outputstr = f"""
             {lockstatement}
             {viewstatement}
             {conflictstatement}
+
             CS2PL:
             {schedule.CS2PL()}
             S2PL:

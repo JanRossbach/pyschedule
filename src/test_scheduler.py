@@ -6,10 +6,12 @@ def test_Scheduler_without_locks(capsys):
     S = Schedule(schedule)
     assert S.num_transactions == 2
     assert len(S.transactions) == 2
-    assert S.transactions[0] and S.transactions[1]
+    assert S.transactions[1] and S.transactions[2]
     assert S.RF == set([(0,'x',1),(0,'y',1),(0,'z',2),(2,'y',2)])
+    assert S.conf == set([(1,2)])
     assert S.serial() == S
     assert S.is_view_serial()
+    assert S.is_conflict_serial()
     print(S)
     captured = capsys.readouterr()
     assert captured.out == schedule + "\n"

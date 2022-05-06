@@ -45,39 +45,40 @@ class Schedule():
             raise ValueError("A Schedule should be initialised with a String or a List of Operations")
         self.operations = operations
         self.num_transactions = max(map(lambda x: x.transaction_id , self.operations))
-        self.transactions = [ list(filter(lambda o: o.transaction_id is i, self.operations))
-                              for i in range(1, self.num_transactions+1)]
-        self.conf = conf(operations)
-        self.RF = RF(operations)
+        self.transactions = { i: list(filter(lambda o: o.transaction_id is i, self.operations))
+                              for i in range(1, self.num_transactions+1)}
+        self.conf = conf(self.operations)
+        self.RF = RF(self.operations)
 
     def __repr__(self):
         return ''.join(map(str,self.operations))
 
     def draw_conflict_graph(self,folder):
         dot = graphviz.Digraph('conflict', comment='The conflict Graph', format='png')
-        for i in range(self.num_transactions):
+        for i in list(self.transactions): # Make a Node T_id for each transaction id
             dot.node(f"T_{i}")
         for p,q in self.conf:
-            dot.edge(p,q)
+            dot.edge(f"T_{p}",f"T_{q}") # Make an Edge for each conflict pair
         dot.render(directory=folder, view=False)
 
     def is_view_serial(self):
         return self.serial() is not None
 
-    # TODO
     def is_conflict_serial(self):
-        return False
+        for p,q in self.conf:
+            if (q,p) in self.conf:
+                return False
+        return True
 
     # TODO
     def conform(self):
         return ""
 
-    # TODO
     def serial(self):
         """
         Returns the first equivalent serial schedule if the schedule is serializable, else None.
         """
-        for perm in permutations(self.transactions):
+        for perm in permutations(self.transactions.values()):
             SS = Schedule(flatten(perm))
             if SS.RF == self.RF:
                 return SS
@@ -89,7 +90,7 @@ class Schedule():
         Returns a new schedule with locks,
         conforming the the conservative strict two phase locking protocol.
         """
-        pass
+        return self
 
     # TODO
     def S2PL(self):
@@ -97,7 +98,7 @@ class Schedule():
         Returns a new schedule with locks,
         conforming the the strict two pahse locking protocol.
         """
-        pass
+        return self
 
     # TODO
     def C2PL(self):
@@ -105,7 +106,7 @@ class Schedule():
         Returns a new schedule with locks,
         conforming the the conservative strict two phase locking protocol
         """
-        pass
+        return self
 
     def __eq__(self,other):
         return self.__repr__() == other.__repr__()
@@ -131,8 +132,36 @@ def parseOperations(string):
             string = string[5:]
     return operations
 
+def conflict(op1,op2):
+    """Returns True if the two given Operations are a conflict pair. Else False"""
+    if op1.transaction_id == op2.transaction_id:
+        return False
+    if op1.op_type == OperationType.READ:
+        return op2.op_type == OperationType.WRITE
+    if op1.op_type == OperationType.WRITE:
+        return op2.op_type == OperationType.WRITE or op2.op_type == OperationType.READ
+    return False
+
+def aborted(ops, trans_id,):
+    """Returns True if the given ops list contains an abort with the given transaction id.
+    Else False."""
+    for op in ops:
+        if op.transaction_id == trans_id and op.op_type == OperationType.ABORT:
+            return True
+    return False
+
 def conf(oplist):
-    return set()
+    """
+    Returns the cleaned conflict relation of the schedule.
+    Input: A list of Operations
+    Output: A set of Tuples (int,int) representing transaction Ids
+    """
+    crel = set([])
+    for i,op1 in enumerate(oplist):
+        for op2 in oplist[i+1:]:
+            if conflict(op1,op2) and not (aborted(oplist, op1.transaction_id) or aborted(oplist, op2.transaction_id)):
+                crel.add((op1.transaction_id,op2.transaction_id))
+    return crel
 
 
 def find_last_write_on(oplist, variable):
@@ -151,3 +180,7 @@ def RF(oplist):
 
 def flatten(t):
     return [item for sublist in t for item in sublist]
+
+
+d = {1: [1,2,3],2: [3,4,5]}
+r = list(d)
