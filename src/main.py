@@ -45,7 +45,7 @@ def main():
             # Create the Output with the Scheduler in the required Format using f Strings
             lockstatement = ""
             if "l" in inputstr:
-                lockstatement = "Eingabe mit Locks, entsprechent " + schedule.conform()
+                lockstatement = "Eingabe mit Locks, entsprechent " + schedule.adheres_to()
             else:
                 lockstatement = "Eingabe ohne Locks"
             viewstatement = "s ist " + ("" if schedule.is_view_serial() else "nicht ") + "sichtserialisierbar"
