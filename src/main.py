@@ -16,7 +16,7 @@ input_column = [
 ]
 
 output_column = [
-    [sg.Text("Here comes schedule Output:")],
+    [sg.Text("Output")],
     [sg.Multiline(default_text="",key="--OUT--")],
     [sg.Image("../resources/basic.gv.png",key="--GRAPH--")]
 ]

@@ -67,6 +67,7 @@ def parseOperations(string):
     Output: A python list of Operations
     """
     operations = []
+    string = string.strip()
     while string:
         if string[:2] == 'wl' or string[:2] == 'rl':
             operations.append(Operation(int(string[2]),string_to_optype[string[:2]],string[4]))
@@ -91,7 +92,7 @@ def conflict(op1,op2):
         return op2.op_type == OperationType.WRITE or op2.op_type == OperationType.READ
     return False
 
-def aborted(ops, trans_id,):
+def is_aborted(ops, trans_id,):
     """Returns True if the given ops list contains an abort with the given transaction id.
     Else False."""
     for op in ops:
@@ -108,7 +109,7 @@ def conf(oplist):
     crel = set([])
     for i,op1 in enumerate(oplist):
         for op2 in oplist[i+1:]:
-            if conflict(op1,op2) and not (aborted(oplist, op1.transaction_id) or aborted(oplist, op2.transaction_id)):
+            if conflict(op1,op2) and not (is_aborted(oplist, op1.transaction_id) or is_aborted(oplist, op2.transaction_id)):
                 crel.add((op1.transaction_id,op2.transaction_id))
     return crel
 
@@ -130,7 +131,7 @@ def RF(oplist):
 def flatten(t):
     return [item for sublist in t for item in sublist]
 
-def conservative(oplist):
+def is_conservative(oplist):
     """
     Returns True if the given oplist uses conservative locking,
     meaning all locks happen together at the start of each transaction.
@@ -141,7 +142,7 @@ def conservative(oplist):
                 return False
     return True
 
-def strict(oplist):
+def is_strict(oplist):
     """
     Returns True if the given oplist uses conservative locking,
     meaning all the unlocks happen together at the end of each transaction.

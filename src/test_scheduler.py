@@ -52,7 +52,6 @@ def test_adheres_to():
     assert S2.adheres_to() == "C2PL"
     assert S.adheres_to() == "S2PL"
 
-
 def test_needed_locks():
     schedule = "r1(x)w1(x)r1(y)w1(y)c1r2(z)w2(y)r2(y)c2"
     S = Schedule(schedule)

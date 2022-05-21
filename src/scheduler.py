@@ -41,8 +41,8 @@ class Schedule():
 
     def adheres_to(self):
         """Returns the Locking Protocol of the schedule as a String"""
-        c = conservative(self.operations)
-        s = strict(self.operations)
+        c = is_conservative(self.operations)
+        s = is_strict(self.operations)
         if c and s:
             return "CS2PL"
         elif c:
